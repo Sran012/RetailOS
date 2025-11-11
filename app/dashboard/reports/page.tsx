@@ -5,13 +5,8 @@ import { ProductStore, CustomerStore, InvoiceStore } from "@/lib/data-store"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
-  LineChart,
-  Line,
   BarChart,
   Bar,
-  PieChart,
-  Pie,
-  Cell,
   AreaChart,
   Area,
   XAxis,
@@ -23,14 +18,29 @@ import {
 } from "recharts"
 import { Badge } from "@/components/ui/badge"
 import { AlertCircle, CheckCircle } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 export default function ReportsPage() {
   const [selectedTab, setSelectedTab] = useState("overview")
+  const [startDate, setStartDate] = useState(
+    new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+  )
+  const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0])
+
   const products = ProductStore.getAll()
   const customers = CustomerStore.getAll()
   const invoices = InvoiceStore.getAll()
 
-  // Calculate profit metrics
+  const filteredInvoices = useMemo(() => {
+    const start = new Date(startDate)
+    const end = new Date(endDate)
+    return invoices.filter((inv) => {
+      const invDate = new Date(inv.createdAt)
+      return invDate >= start && invDate <= end
+    })
+  }, [invoices, startDate, endDate])
+
   const profitAnalysis = useMemo(() => {
     return products.map((product) => {
       const margin = product.retailPrice - product.wholesalePrice
@@ -43,10 +53,8 @@ export default function ReportsPage() {
     })
   }, [])
 
-  // Calculate inventory turnover (simplified rule-based AI)
   const inventoryTurnover = useMemo(() => {
     return products.map((product) => {
-      // Rule: estimate turnover based on stock levels
       const turnoverScore = ((product.minStock / product.stock) * 100).toFixed(0)
       const estimatedTurns = (30 / Math.max(1, Number.parseInt(turnoverScore))).toFixed(1)
       return {
@@ -57,14 +65,12 @@ export default function ReportsPage() {
     })
   }, [])
 
-  // Sales forecast (AI-predicted using weighted scoring)
   const salesForecast = useMemo(() => {
     const now = new Date()
     return Array.from({ length: 30 }, (_, i) => {
       const date = new Date(now.getTime() + i * 24 * 60 * 60 * 1000)
       const dayOfWeek = date.getDay()
 
-      // Rule-based scoring: weekends lower, weekdays higher
       const dayMultiplier = dayOfWeek === 0 || dayOfWeek === 6 ? 0.7 : 1.0
       const trend = 5000 + Math.random() * 3000 * dayMultiplier
       const wholesale = 8000 + Math.random() * 4000 * dayMultiplier
@@ -77,7 +83,6 @@ export default function ReportsPage() {
     })
   }, [])
 
-  // Customer segment analysis
   const customerSegments = useMemo(() => {
     const retail = customers.filter((c) => c.type === "retail")
     const wholesale = customers.filter((c) => c.type === "wholesale")
@@ -96,11 +101,9 @@ export default function ReportsPage() {
     ]
   }, [])
 
-  // Demand trend analysis (rule-based AI)
   const demandTrends = useMemo(() => {
     return products
       .map((product) => {
-        // Rule: compare current stock to min stock
         const stockHealth = (product.stock / (product.minStock * 3)) * 100
         const trendDirection = stockHealth > 100 ? "up" : "down"
         const trendPercent = Math.abs(100 - stockHealth).toFixed(1)
@@ -118,9 +121,8 @@ export default function ReportsPage() {
 
   const colors = ["#16a34a", "#0ea5e9", "#f59e0b", "#ef4444", "#8b5cf6"]
 
-  // Key metrics
-  const totalRevenue = invoices.reduce((sum, inv) => sum + inv.total, 0)
-  const avgOrderValue = invoices.length > 0 ? totalRevenue / invoices.length : 0
+  const totalRevenue = filteredInvoices.reduce((sum, inv) => sum + inv.total, 0)
+  const avgOrderValue = filteredInvoices.length > 0 ? totalRevenue / filteredInvoices.length : 0
   const totalProfit = products.reduce((sum, p) => sum + (p.retailPrice - p.wholesalePrice) * 0.7, 0)
   const profitMargin = ((totalProfit / Math.max(1, totalRevenue)) * 100).toFixed(1)
 
@@ -128,15 +130,13 @@ export default function ReportsPage() {
     const now = new Date()
     const invoicesByDay: Record<string, number[]> = {}
 
-    // Group invoices by day of week for pattern analysis
-    invoices.forEach((inv) => {
+    filteredInvoices.forEach((inv) => {
       const date = new Date(inv.createdAt)
       const dayOfWeek = date.getDay().toString()
       if (!invoicesByDay[dayOfWeek]) invoicesByDay[dayOfWeek] = []
       invoicesByDay[dayOfWeek].push(inv.total)
     })
 
-    // Calculate statistics per day of week
     const dayStats = Object.entries(invoicesByDay).map(([day, values]) => ({
       day: Number.parseInt(day),
       avg: values.reduce((a, b) => a + b, 0) / values.length,
@@ -146,7 +146,6 @@ export default function ReportsPage() {
       ),
     }))
 
-    // Generate 90-day forecast with seasonality
     const forecast = Array.from({ length: 90 }, (_, i) => {
       const date = new Date(now.getTime() + i * 24 * 60 * 60 * 1000)
       const dayOfWeek = date.getDay()
@@ -154,7 +153,7 @@ export default function ReportsPage() {
 
       const baseValue = dayStats_ ? dayStats_.avg : 5000
       const variance = dayStats_ ? dayStats_.std * 0.5 : 1000
-      const trend = 1 + (i / 90) * 0.15 // 15% growth trend
+      const trend = 1 + (i / 90) * 0.15
       const noise = (Math.random() - 0.5) * 2 * variance
 
       return {
@@ -167,12 +166,12 @@ export default function ReportsPage() {
     })
 
     return forecast
-  }, [invoices])
+  }, [filteredInvoices])
 
   const customerPredictions = useMemo(() => {
     return customers
       .map((customer) => {
-        const customerInvoices = invoices.filter((i) => i.customerId === customer.id)
+        const customerInvoices = filteredInvoices.filter((i) => i.customerId === customer.id)
         const avgOrderValue =
           customerInvoices.length > 0
             ? customerInvoices.reduce((sum, i) => sum + i.total, 0) / customerInvoices.length
@@ -184,7 +183,6 @@ export default function ReportsPage() {
             : Date.now()
         const daysSinceLastPurchase = (Date.now() - lastPurchase) / (1000 * 60 * 60 * 24)
 
-        // RFM-like scoring
         const recencyScore = Math.max(0, 100 - daysSinceLastPurchase)
         const frequencyScore = Math.min(100, frequency * 20)
         const monetaryScore = Math.min(100, (customer.totalPurchases / 100000) * 100)
@@ -202,12 +200,12 @@ export default function ReportsPage() {
         }
       })
       .sort((a, b) => b.predictionScore - a.predictionScore)
-  }, [customers, invoices])
+  }, [customers, filteredInvoices])
 
   const productRecommendations = useMemo(() => {
     return products
       .map((product) => {
-        const productInvoices = invoices.filter((i) => i.items.some((item) => item.productId === product.id))
+        const productInvoices = filteredInvoices.filter((i) => i.items.some((item) => item.productId === product.id))
         const unitsSold = productInvoices.reduce(
           (sum, i) => sum + (i.items.find((item) => item.productId === product.id)?.quantity || 0),
           0,
@@ -224,7 +222,6 @@ export default function ReportsPage() {
           0,
         )
 
-        // Turnover velocity
         const velocityScore = unitsSold * 10
         const profitScore = (totalProfit / Math.max(1, product.stock)) * 100
         const stockHealth = (product.stock / (product.minStock * 2)) * 100
@@ -258,7 +255,7 @@ export default function ReportsPage() {
         }
       })
       .sort((a, b) => (b.priority === "critical" ? 1 : -1))
-  }, [products, invoices])
+  }, [products, filteredInvoices])
 
   const criticalAlerts = productRecommendations.filter((p) => p.priority === "critical").length
   const highValueCustomers = customerPredictions.filter((c) => c.predictionScore > 75).length
@@ -268,10 +265,37 @@ export default function ReportsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Reports & Analytics</h1>
-        <p className="text-muted-foreground">Advanced AI-powered insights, forecasts, and recommendations</p>
+        <p className="text-muted-foreground">Advanced insights, forecasts, and recommendations</p>
       </div>
 
-      {/* Key Metrics with Alerts */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm">Filter by Date Range</CardTitle>
+        </CardHeader>
+        <CardContent className="flex gap-4 flex-wrap">
+          <div className="flex-1 min-w-48">
+            <Label htmlFor="start-date">Start Date</Label>
+            <Input
+              id="start-date"
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="mt-1"
+            />
+          </div>
+          <div className="flex-1 min-w-48">
+            <Label htmlFor="end-date">End Date</Label>
+            <Input
+              id="end-date"
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="mt-1"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
@@ -279,7 +303,7 @@ export default function ReportsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">₹{(totalRevenue / 1000).toFixed(1)}K</div>
-            <p className="text-xs text-muted-foreground">From all invoices</p>
+            <p className="text-xs text-muted-foreground">From invoices</p>
           </CardContent>
         </Card>
 
@@ -289,7 +313,7 @@ export default function ReportsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">₹{avgOrderValue.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">{invoices.length} orders</p>
+            <p className="text-xs text-muted-foreground">{filteredInvoices.length} orders</p>
           </CardContent>
         </Card>
 
@@ -318,120 +342,20 @@ export default function ReportsPage() {
       </div>
 
       <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="forecasts">Forecasts</TabsTrigger>
           <TabsTrigger value="customers">Customers</TabsTrigger>
           <TabsTrigger value="products">Products</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          {/* 30-Day Sales Forecast */}
           <Card>
             <CardHeader>
-              <CardTitle>30-Day Sales Forecast</CardTitle>
-              <CardDescription>AI-predicted sales trend based on historical patterns</CardDescription>
+              <CardTitle>90-Day Sales Forecast</CardTitle>
+              <CardDescription>Advanced prediction with confidence bands</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={salesForecast}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="retail" stroke="#16a34a" name="Retail Forecast" dot={false} />
-                  <Line type="monotone" dataKey="wholesale" stroke="#0ea5e9" name="Wholesale Forecast" dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Profit Margins */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Profit Margins</CardTitle>
-                <CardDescription>Margin per product</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={profitAnalysis}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
-                    <YAxis />
-                    <Tooltip formatter={(value) => `₹${value}`} />
-                    <Bar dataKey="margin" fill="#16a34a" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            {/* Revenue Distribution */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Revenue Distribution</CardTitle>
-                <CardDescription>Retail vs Wholesale</CardDescription>
-              </CardHeader>
-              <CardContent className="flex flex-col items-center justify-center">
-                <ResponsiveContainer width="100%" height={250}>
-                  <PieChart>
-                    <Pie
-                      data={customerSegments}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, value }) => `${name}: ₹${(value / 1000).toFixed(1)}K`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {customerSegments.map((_, index) => (
-                        <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => `₹${value.toFixed(0)}`} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Top Demand Trends */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Top Demand Trends</CardTitle>
-              <CardDescription>Products with highest demand fluctuations</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {demandTrends.map((trend, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                    <div>
-                      <p className="font-medium">{trend.product}</p>
-                      <p className="text-xs text-muted-foreground">SKU: {trend.sku}</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Badge variant={trend.trend === "up" ? "default" : "outline"}>
-                        {trend.trend === "up" ? "↑" : "↓"} {trend.percent}%
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="forecasts" className="space-y-6">
-          {/* 90-Day Advanced Forecast */}
-          <Card>
-            <CardHeader>
-              <CardTitle>90-Day Sales Forecast with Confidence Bands</CardTitle>
-              <CardDescription>Advanced prediction with upper and lower bounds</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
                 <AreaChart data={advancedPredictions}>
                   <defs>
                     <linearGradient id="colorForecast" x1="0" y1="0" x2="0" y2="1">
@@ -442,24 +366,7 @@ export default function ReportsPage() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
                   <YAxis />
-                  <Tooltip
-                    content={({ active, payload }) => {
-                      if (active && payload && payload[0]) {
-                        const data = payload[0].payload
-                        return (
-                          <div className="bg-card p-3 rounded border border-border text-sm">
-                            <p className="font-medium">{data.date}</p>
-                            <p className="text-primary">Forecast: ₹{data.forecast}</p>
-                            <p className="text-muted-foreground text-xs">
-                              Range: ₹{data.lower} - ₹{data.upper}
-                            </p>
-                          </div>
-                        )
-                      }
-                      return null
-                    }}
-                  />
-                  <Area type="monotone" dataKey="upper" stroke="none" fill="none" />
+                  <Tooltip />
                   <Area
                     type="monotone"
                     dataKey="forecast"
@@ -467,26 +374,26 @@ export default function ReportsPage() {
                     fill="url(#colorForecast)"
                     strokeWidth={2}
                   />
-                  <Area type="monotone" dataKey="lower" stroke="none" fill="none" />
                 </AreaChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
 
-          {/* Inventory Turnover */}
           <Card>
             <CardHeader>
-              <CardTitle>Inventory Turnover Rate</CardTitle>
-              <CardDescription>Estimated monthly turns per product</CardDescription>
+              <CardTitle>Product Performance</CardTitle>
+              <CardDescription>Stock levels and profitability</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={inventoryTurnover}>
+                <BarChart data={products.slice(0, 6)}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="turns" fill="#0ea5e9" />
+                  <Legend />
+                  <Bar dataKey="stock" fill="#0ea5e9" name="Current Stock" />
+                  <Bar dataKey="minStock" fill="#f59e0b" name="Min Stock" />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -494,7 +401,6 @@ export default function ReportsPage() {
         </TabsContent>
 
         <TabsContent value="customers" className="space-y-6">
-          {/* Customer Value Predictions */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
               <CardHeader className="pb-2">
@@ -533,11 +439,10 @@ export default function ReportsPage() {
             </Card>
           </div>
 
-          {/* Customer Predictions Table */}
           <Card>
             <CardHeader>
               <CardTitle>Customer Value Predictions</CardTitle>
-              <CardDescription>Ranked by predictive score (RFM analysis)</CardDescription>
+              <CardDescription>Ranked by predictive score</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3 max-h-96 overflow-y-auto">
@@ -581,11 +486,10 @@ export default function ReportsPage() {
         </TabsContent>
 
         <TabsContent value="products" className="space-y-6">
-          {/* Product Recommendations */}
           <Card>
             <CardHeader>
-              <CardTitle>Product Recommendations Engine</CardTitle>
-              <CardDescription>Stock levels, performance metrics, and action items</CardDescription>
+              <CardTitle>Product Recommendations</CardTitle>
+              <CardDescription>Stock health and action items</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3 max-h-96 overflow-y-auto">
@@ -610,8 +514,8 @@ export default function ReportsPage() {
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                       <div>
-                        <p className="text-muted-foreground text-xs">Stock Health</p>
-                        <p className="font-medium">{product.stockHealth}%</p>
+                        <p className="text-muted-foreground text-xs">Stock</p>
+                        <p className="font-medium">{product.stock}</p>
                       </div>
                       <div>
                         <p className="text-muted-foreground text-xs">Units Sold</p>

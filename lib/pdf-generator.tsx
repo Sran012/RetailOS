@@ -27,14 +27,12 @@ export async function generateInvoicePDF(invoice: Invoice) {
     ".total-row { display: flex; justify-content: flex-end; margin: 8px 0; gap: 80px; font-size: 13px; } " +
     ".total-label { font-weight: bold; min-width: 120px; text-align: right; } " +
     ".total-amount { font-weight: bold; min-width: 100px; text-align: right; } " +
-    ".profit { color: #4caf50; font-weight: 600; } " +
     ".footer { text-align: center; margin-top: 40px; font-size: 11px; color: #999; border-top: 1px solid #ddd; padding-top: 15px; }"
   style.textContent = cssText
   head.appendChild(style)
   doc.appendChild(head)
 
   const body = document.createElement("body")
-
   const container = document.createElement("div")
   container.className = "container"
 
@@ -108,12 +106,11 @@ export async function generateInvoicePDF(invoice: Invoice) {
 
   container.appendChild(info)
 
-  // Table
   const table = document.createElement("table")
   const thead = document.createElement("thead")
   const headerRow = document.createElement("tr")
 
-  const headers = ["Product", "Qty", "Cost Price (₹)", "Sale Price (₹)", "Amount (₹)", "Profit (₹)"]
+  const headers = ["Product", "Qty", "Sale Price (₹)", "Amount (₹)"]
   headers.forEach((headerText) => {
     const th = document.createElement("th")
     th.textContent = headerText
@@ -129,18 +126,13 @@ export async function generateInvoicePDF(invoice: Invoice) {
     const cells = [
       item.productName,
       item.quantity.toString(),
-      "₹" + item.costPrice.toFixed(2),
       "₹" + item.salePrice.toFixed(2),
       "₹" + (item.salePrice * item.quantity).toFixed(2),
-      "₹" + (item.profit * item.quantity).toFixed(2),
     ]
 
-    cells.forEach((cellText, index) => {
+    cells.forEach((cellText) => {
       const td = document.createElement("td")
       td.textContent = cellText
-      if (index === cells.length - 1) {
-        td.className = "profit"
-      }
       row.appendChild(td)
     })
 
@@ -150,7 +142,7 @@ export async function generateInvoicePDF(invoice: Invoice) {
   table.appendChild(tbody)
   container.appendChild(table)
 
-  // Totals
+  // Totals - Remove profit from customer invoice
   const totals = document.createElement("div")
   totals.className = "totals"
 
@@ -172,12 +164,6 @@ export async function generateInvoicePDF(invoice: Invoice) {
       value: "₹" + invoice.total.toFixed(2),
       style: "border-top: 2px solid #ff8c42; padding-top: 10px; margin-top: 10px;",
     },
-    {
-      label: "Total Profit:",
-      value: "₹" + invoice.profit.toFixed(2),
-      style: "",
-      isProfit: true,
-    },
   ]
 
   totalRows.forEach((row) => {
@@ -189,16 +175,10 @@ export async function generateInvoicePDF(invoice: Invoice) {
 
     const label = document.createElement("span")
     label.className = "total-label"
-    if (row.isProfit) {
-      label.className += " profit"
-    }
     label.textContent = row.label
 
     const value = document.createElement("span")
     value.className = "total-amount"
-    if (row.isProfit) {
-      value.className += " profit"
-    }
     value.textContent = row.value
 
     div.appendChild(label)

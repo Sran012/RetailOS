@@ -558,27 +558,8 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-border bg-card/50 mt-24">
-        <div className="max-w-7xl mx-auto px-4 py-16">
-          <div className="grid md:grid-cols-5 gap-8 mb-12">
-            {/* Brand */}
-            <div>
-              <h3 className="text-lg font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                RetailOS
-              </h3>
-              <p className="text-sm text-muted-foreground mb-4">Intelligent retail management for modern businesses</p>
-              <div className="flex gap-4">
-                <a href="#" className="text-muted-foreground hover:text-primary transition">
-                  <span className="text-sm">Twitter</span>
-                </a>
-                <a href="#" className="text-muted-foreground hover:text-primary transition">
-                  <span className="text-sm">LinkedIn</span>
-                </a>
-                <a href="#" className="text-muted-foreground hover:text-primary transition">
-                  <span className="text-sm">Instagram</span>
-                </a>
-              </div>
-            </div>
-
+        <div className="max-w-7xl mx-auto px-4 py-12">
+          <div className="grid md:grid-cols-3 gap-12 mb-12">
             {/* Product */}
             <div>
               <h4 className="font-semibold mb-4">Product</h4>
@@ -596,11 +577,6 @@ export default function LandingPage() {
                 <li>
                   <a href="#" className="hover:text-primary transition">
                     Security
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary transition">
-                    Roadmap
                   </a>
                 </li>
               </ul>
@@ -622,39 +598,7 @@ export default function LandingPage() {
                 </li>
                 <li>
                   <a href="#" className="hover:text-primary transition">
-                    Careers
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary transition">
                     Contact
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Resources */}
-            <div>
-              <h4 className="font-semibold mb-4">Resources</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>
-                  <a href="#" className="hover:text-primary transition">
-                    Documentation
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary transition">
-                    API Reference
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary transition">
-                    Support
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary transition">
-                    Status
                   </a>
                 </li>
               </ul>
@@ -674,25 +618,19 @@ export default function LandingPage() {
                     Terms
                   </a>
                 </li>
-                <li>
-                  <a href="#" className="hover:text-primary transition">
-                    Cookie Policy
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-primary transition">
-                    Compliance
-                  </a>
-                </li>
               </ul>
             </div>
           </div>
 
-          {/* Bottom Footer */}
-          <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-muted-foreground">
+          <div className="border-t border-border pt-8 text-center text-sm text-muted-foreground">
             <p>© 2025 RetailOS. All rights reserved.</p>
-            <p>Made with ❤️ for Indian retailers</p>
           </div>
+        </div>
+
+        <div className="w-full bg-primary/5 border-t border-primary/20 py-6 text-center">
+          <p className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            RetailOS
+          </p>
         </div>
       </footer>
     </div>

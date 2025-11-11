@@ -106,11 +106,14 @@ export default function CreateInvoiceDialog({ onSave, onClose, businessName }: C
       businessName,
       customerName,
       customerType: "retail",
-      items,
+      items: items.map((item) => ({
+        ...item,
+        profit: 0, // Hide profit from PDF
+      })),
       subtotal,
       taxAmount,
       total,
-      profit: totalProfit,
+      profit: 0, // Hide total profit from PDF
       status: "pending",
       createdAt: new Date(),
       dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
