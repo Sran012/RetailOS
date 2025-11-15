@@ -9,7 +9,7 @@ import { DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/c
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Trash2, Download } from "lucide-react"
+import { Trash2, Download } from 'lucide-react'
 import { generateInvoicePDF } from "@/lib/pdf-generator"
 
 interface CreateInvoiceDialogProps {
@@ -108,12 +108,12 @@ export default function CreateInvoiceDialog({ onSave, onClose, businessName }: C
       customerType: "retail",
       items: items.map((item) => ({
         ...item,
-        profit: 0, // Hide profit from PDF
+        profit: 0,
       })),
       subtotal,
       taxAmount,
       total,
-      profit: 0, // Hide total profit from PDF
+      profit: 0,
       status: "pending",
       createdAt: new Date(),
       dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),

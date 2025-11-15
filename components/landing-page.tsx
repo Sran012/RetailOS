@@ -5,19 +5,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import HeroSection from "./hero-section"
-import {
-  Package,
-  TrendingUp,
-  BarChart3,
-  Zap,
-  DollarSign,
-  ArrowRight,
-  CheckCircle,
-  Star,
-  Menu,
-  X,
-  ShoppingCart,
-} from "lucide-react"
+import { Package, TrendingUp, BarChart3, Zap, DollarSign, ArrowRight, CheckCircle, Star, Menu, X, ShoppingCart } from 'lucide-react'
 
 export default function LandingPage() {
   const [email, setEmail] = useState("")
@@ -70,7 +58,7 @@ export default function LandingPage() {
       name: "Rajesh Kumar",
       business: "Electronics Retail Store",
       quote:
-        "RetailOS transformed how we manage inventory. We reduced stockouts by 60% and increased sales visibility dramatically.",
+        "Bricto transformed how we manage inventory. We reduced stockouts by 60% and increased sales visibility dramatically.",
     },
     {
       name: "Priya Sharma",
@@ -132,9 +120,9 @@ export default function LandingPage() {
 
   const faqs = [
     {
-      question: "Do I need technical knowledge to use RetailOS?",
+      question: "Do I need technical knowledge to use Bricto?",
       answer:
-        "No! RetailOS is designed for business owners with no technical background. The interface is intuitive and we provide comprehensive support.",
+        "No! Bricto is designed for business owners with no technical background. The interface is intuitive and we provide comprehensive support.",
     },
     {
       question: "Can I import my existing data?",
@@ -147,7 +135,7 @@ export default function LandingPage() {
         "Absolutely. We use enterprise-grade encryption, regular backups, and comply with data protection regulations. Your data is your priority.",
     },
     {
-      question: "Can I use RetailOS offline?",
+      question: "Can I use Bricto offline?",
       answer:
         "You can view cached data offline, but real-time sync requires internet. We're working on enhanced offline capabilities.",
     },
@@ -183,10 +171,10 @@ export default function LandingPage() {
   return (
     <div className="w-full bg-background text-foreground">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
+      <nav className="sticky top-0 z-50 border-b border-border/40 bg-background/70 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            RetailOS
+            Bricto
           </div>
 
           {/* Desktop Menu */}
@@ -202,10 +190,12 @@ export default function LandingPage() {
             </a>
             <div className="flex gap-3">
               <Link href="/login">
-                <Button variant="outline">Login</Button>
+                <Button variant="outline" className="backdrop-blur">
+                  Login
+                </Button>
               </Link>
               <Link href="/signup">
-                <Button>Get Started</Button>
+                <Button className="backdrop-blur">Get Started</Button>
               </Link>
             </div>
           </div>
@@ -218,7 +208,7 @@ export default function LandingPage() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-border p-4 flex flex-col gap-3">
+          <div className="md:hidden border-t border-border/40 p-4 flex flex-col gap-3 backdrop-blur">
             <a href="#features" className="text-muted-foreground hover:text-foreground">
               Features
             </a>
@@ -244,7 +234,7 @@ export default function LandingPage() {
       <HeroSection />
 
       {/* Logo Banner */}
-      <section className="border-y border-border py-16 px-4 bg-card/50">
+      <section className="border-y border-border/40 py-16 px-4 bg-gradient-to-b from-primary/5 to-transparent backdrop-blur">
         <div className="max-w-6xl mx-auto">
           <p className="text-center text-muted-foreground mb-12">Trusted by 1000+ retailers across India</p>
           <div className="grid grid-cols-2 md:grid-cols-6 gap-8 items-center justify-center">
@@ -272,10 +262,10 @@ export default function LandingPage() {
             return (
               <Card
                 key={i}
-                className="border border-border hover:border-primary/50 hover:shadow-lg transition-all duration-300 hover:translate-y-[-4px] cursor-pointer group"
+                className="border border-border/40 hover:border-primary/50 hover:shadow-xl transition-all duration-300 hover:translate-y-[-4px] cursor-pointer group backdrop-blur bg-card/50"
               >
                 <CardContent className="pt-8">
-                  <div className="mb-4 inline-block p-3 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition">
+                  <div className="mb-4 inline-block p-3 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition backdrop-blur">
                     <Icon className="w-6 h-6 text-primary" />
                   </div>
                   <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
@@ -294,10 +284,10 @@ export default function LandingPage() {
           <p className="text-lg text-muted-foreground">Powerful dashboard designed for real business needs</p>
         </div>
 
-        <div className="bg-card rounded-xl border border-border overflow-hidden relative">
+        <div className="bg-card/50 rounded-2xl border border-primary/20 overflow-hidden relative backdrop-blur shadow-2xl hover:shadow-3xl transition-shadow">
           <img
             src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-11-11%20020946-5rCHCrBFmTngx5yBbNfoCXfuA6bFcN.png"
-            alt="RetailOS Dashboard - Sales & Invoicing"
+            alt="Bricto Dashboard - Sales & Invoicing"
             className="w-full h-auto object-cover rounded-lg"
           />
         </div>
@@ -335,14 +325,14 @@ export default function LandingPage() {
             return (
               <div key={i} className="relative">
                 <div className="flex flex-col items-center text-center">
-                  <div className="w-16 h-16 bg-primary/20 border-2 border-primary rounded-full flex items-center justify-center mb-6 relative z-10">
+                  <div className="w-16 h-16 bg-primary/20 border-2 border-primary rounded-full flex items-center justify-center mb-6 relative z-10 backdrop-blur">
                     <span className="text-2xl font-bold text-primary">{step.number}</span>
                   </div>
                   <Icon className="w-8 h-8 text-primary mb-4" />
                   <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
                   <p className="text-muted-foreground">{step.description}</p>
                 </div>
-                {i < 2 && <div className="hidden md:block absolute top-8 left-[58%] w-[84%] h-0.5 bg-border" />}
+                {i < 2 && <div className="hidden md:block absolute top-8 left-[58%] w-[84%] h-0.5 bg-gradient-to-r from-border to-transparent" />}
               </div>
             )
           })}
@@ -374,7 +364,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="bg-card rounded-xl border border-border overflow-hidden">
+          <div className="bg-card/50 rounded-2xl border border-primary/20 overflow-hidden backdrop-blur shadow-2xl">
             <img
               src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-11-11%20021157-HvJjEMnd6RqX9JhpCu0jrHYpisurUC.png"
               alt="7-Day Sales Trend - Retail vs Wholesale"
@@ -393,7 +383,7 @@ export default function LandingPage() {
 
         <div className="grid md:grid-cols-3 gap-8">
           {testimonials.map((testimonial, i) => (
-            <Card key={i} className="border border-border hover:border-primary/50 transition">
+            <Card key={i} className="border border-border/40 hover:border-primary/50 transition backdrop-blur bg-card/50">
               <CardContent className="pt-8">
                 <div className="flex gap-1 mb-4">
                   {[...Array(5)].map((_, j) => (
@@ -430,7 +420,7 @@ export default function LandingPage() {
           <p className="text-lg text-muted-foreground mb-8">Choose the plan that fits your business</p>
 
           {/* Pricing Toggle */}
-          <div className="inline-flex gap-2 bg-card rounded-lg p-1">
+          <div className="inline-flex gap-2 bg-card/50 rounded-lg p-1 backdrop-blur border border-border/40">
             <button
               onClick={() => setActiveTab("monthly")}
               className={`px-6 py-2 rounded transition ${
@@ -454,15 +444,15 @@ export default function LandingPage() {
           {pricingTiers.map((tier, i) => (
             <Card
               key={i}
-              className={`border transition-all ${
+              className={`border transition-all backdrop-blur ${
                 tier.highlighted
-                  ? "border-primary ring-2 ring-primary/20 shadow-lg md:scale-105"
-                  : "border-border hover:border-primary/30"
+                  ? "border-primary ring-2 ring-primary/20 shadow-xl md:scale-105 bg-card"
+                  : "border-border/40 hover:border-primary/30 bg-card/50"
               }`}
             >
               <CardContent className="pt-8 space-y-6">
                 {tier.highlighted && (
-                  <div className="bg-primary/20 text-primary px-3 py-1 rounded-full text-sm font-semibold w-fit">
+                  <div className="bg-primary/20 text-primary px-3 py-1 rounded-full text-sm font-semibold w-fit backdrop-blur">
                     Most Popular
                   </div>
                 )}
@@ -483,7 +473,7 @@ export default function LandingPage() {
                   </Button>
                 </Link>
 
-                <div className="space-y-3 pt-4 border-t border-border">
+                <div className="space-y-3 pt-4 border-t border-border/40">
                   {tier.features.map((feature, j) => (
                     <div key={j} className="flex gap-2">
                       <CheckCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
@@ -501,12 +491,12 @@ export default function LandingPage() {
       <section id="faq" className="max-w-4xl mx-auto px-4 py-24">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">Frequently Asked Questions</h2>
-          <p className="text-lg text-muted-foreground">Everything you need to know about RetailOS</p>
+          <p className="text-lg text-muted-foreground">Everything you need to know about Bricto</p>
         </div>
 
         <div className="space-y-4">
           {faqs.map((faq, i) => (
-            <div key={i} className="border border-border rounded-lg overflow-hidden">
+            <div key={i} className="border border-border/40 rounded-lg overflow-hidden backdrop-blur bg-card/30">
               <button
                 onClick={() => setExpandedFaq(expandedFaq === i ? -1 : i)}
                 className="w-full px-6 py-4 flex items-center justify-between hover:bg-card/50 transition"
@@ -518,7 +508,7 @@ export default function LandingPage() {
               </button>
 
               {expandedFaq === i && (
-                <div className="px-6 py-4 bg-card/30 border-t border-border">
+                <div className="px-6 py-4 bg-card/30 border-t border-border/40">
                   <p className="text-muted-foreground">{faq.answer}</p>
                 </div>
               )}
@@ -529,10 +519,10 @@ export default function LandingPage() {
 
       {/* Final CTA */}
       <section className="max-w-4xl mx-auto px-4 py-24 text-center">
-        <div className="bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 rounded-2xl p-12 md:p-16">
+        <div className="bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 rounded-2xl p-12 md:p-16 backdrop-blur shadow-xl">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">Ready to Transform Your Business?</h2>
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Join hundreds of retailers who are already growing smarter with RetailOS
+            Join hundreds of retailers who are already growing smarter with Bricto
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center max-w-md mx-auto">
@@ -541,7 +531,7 @@ export default function LandingPage() {
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="flex-1 px-4 py-3 rounded-lg bg-input border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary w-full"
+              className="flex-1 px-4 py-3 rounded-lg bg-input border border-border/40 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary w-full backdrop-blur"
             />
             <Link href="/signup" className="sm:w-auto w-full">
               <Button className="w-full gap-2">
@@ -557,7 +547,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-card/50 mt-24">
+      <footer className="border-t border-border/40 bg-card/30 backdrop-blur mt-24">
         <div className="max-w-7xl mx-auto px-4 py-12">
           <div className="grid md:grid-cols-3 gap-12 mb-12">
             {/* Product */}
@@ -622,14 +612,14 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="border-t border-border pt-8 text-center text-sm text-muted-foreground">
-            <p>© 2025 RetailOS. All rights reserved.</p>
+          <div className="border-t border-border/40 pt-8 text-center text-sm text-muted-foreground">
+            <p>© 2025 Bricto. All rights reserved.</p>
           </div>
         </div>
 
-        <div className="w-full bg-primary/5 border-t border-primary/20 py-6 text-center">
+        <div className="w-full bg-primary/5 border-t border-primary/20 py-6 text-center backdrop-blur">
           <p className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            RetailOS
+            Bricto
           </p>
         </div>
       </footer>

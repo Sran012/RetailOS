@@ -1,219 +1,136 @@
-import type { Invoice } from "@/lib/data-store"
+'use client'
+
+import jsPDF from 'jspdf'
+import type { Invoice } from '@/lib/data-store'
 
 export async function generateInvoicePDF(invoice: Invoice) {
-  const doc = document.createElement("html")
-  doc.lang = "en"
-
-  const head = document.createElement("head")
-  const meta = document.createElement("meta")
-  meta.setAttribute("charset", "UTF-8")
-  head.appendChild(meta)
-
-  const style = document.createElement("style")
-  const cssText =
-    "body { font-family: Arial, sans-serif; margin: 20px; color: #1a1a1a; background: #fff; } " +
-    ".container { max-width: 900px; margin: 0 auto; } " +
-    ".header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #ff8c42; padding-bottom: 20px; } " +
-    ".business-name { font-size: 28px; font-weight: bold; color: #ff8c42; margin-bottom: 5px; } " +
-    ".branding { font-size: 11px; color: #666; margin-top: 8px; } " +
-    ".invoice-title { font-size: 18px; font-weight: bold; margin: 25px 0 15px 0; } " +
-    ".invoice-info { margin-bottom: 25px; } " +
-    ".info-row { display: flex; justify-content: space-between; margin: 6px 0; font-size: 13px; } " +
-    ".info-label { font-weight: bold; min-width: 120px; } " +
-    "table { width: 100%; border-collapse: collapse; margin: 20px 0; } " +
-    "th { background-color: #ff8c42; color: white; padding: 12px; text-align: left; font-weight: bold; font-size: 13px; } " +
-    "td { border-bottom: 1px solid #ddd; padding: 10px; font-size: 12px; } " +
-    ".totals { margin: 25px 0; } " +
-    ".total-row { display: flex; justify-content: flex-end; margin: 8px 0; gap: 80px; font-size: 13px; } " +
-    ".total-label { font-weight: bold; min-width: 120px; text-align: right; } " +
-    ".total-amount { font-weight: bold; min-width: 100px; text-align: right; } " +
-    ".footer { text-align: center; margin-top: 40px; font-size: 11px; color: #999; border-top: 1px solid #ddd; padding-top: 15px; }"
-  style.textContent = cssText
-  head.appendChild(style)
-  doc.appendChild(head)
-
-  const body = document.createElement("body")
-  const container = document.createElement("div")
-  container.className = "container"
-
-  // Header
-  const header = document.createElement("div")
-  header.className = "header"
-
-  const businessName = document.createElement("div")
-  businessName.className = "business-name"
-  businessName.textContent = invoice.businessName
-
-  const branding = document.createElement("div")
-  branding.className = "branding"
-  branding.textContent = "Professional Retail Management System - RetailOS"
-
-  header.appendChild(businessName)
-  header.appendChild(branding)
-  container.appendChild(header)
-
-  // Invoice Title
-  const title = document.createElement("div")
-  title.className = "invoice-title"
-  title.textContent = "INVOICE"
-  container.appendChild(title)
-
-  // Invoice Info
-  const info = document.createElement("div")
-  info.className = "invoice-info"
-
-  const infoRow1 = document.createElement("div")
-  infoRow1.className = "info-row"
-
-  const infoPart1a = document.createElement("div")
-  const label1a = document.createElement("span")
-  label1a.className = "info-label"
-  label1a.textContent = "Invoice #:"
-  infoPart1a.appendChild(label1a)
-  infoPart1a.appendChild(document.createTextNode(" " + invoice.id))
-
-  const infoPart1b = document.createElement("div")
-  const label1b = document.createElement("span")
-  label1b.className = "info-label"
-  label1b.textContent = "Date:"
-  infoPart1b.appendChild(label1b)
-  infoPart1b.appendChild(document.createTextNode(" " + new Date(invoice.createdAt).toLocaleDateString("en-IN")))
-
-  infoRow1.appendChild(infoPart1a)
-  infoRow1.appendChild(infoPart1b)
-  info.appendChild(infoRow1)
-
-  const infoRow2 = document.createElement("div")
-  infoRow2.className = "info-row"
-
-  const infoPart2a = document.createElement("div")
-  const label2a = document.createElement("span")
-  label2a.className = "info-label"
-  label2a.textContent = "Customer:"
-  infoPart2a.appendChild(label2a)
-  infoPart2a.appendChild(document.createTextNode(" " + invoice.customerName))
-
-  const infoPart2b = document.createElement("div")
-  const label2b = document.createElement("span")
-  label2b.className = "info-label"
-  label2b.textContent = "Due Date:"
-  infoPart2b.appendChild(label2b)
-  infoPart2b.appendChild(document.createTextNode(" " + new Date(invoice.dueDate).toLocaleDateString("en-IN")))
-
-  infoRow2.appendChild(infoPart2a)
-  infoRow2.appendChild(infoPart2b)
-  info.appendChild(infoRow2)
-
-  container.appendChild(info)
-
-  const table = document.createElement("table")
-  const thead = document.createElement("thead")
-  const headerRow = document.createElement("tr")
-
-  const headers = ["Product", "Qty", "Sale Price (₹)", "Amount (₹)"]
-  headers.forEach((headerText) => {
-    const th = document.createElement("th")
-    th.textContent = headerText
-    headerRow.appendChild(th)
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
   })
-  thead.appendChild(headerRow)
-  table.appendChild(thead)
 
-  const tbody = document.createElement("tbody")
+  const pageWidth = doc.internal.pageSize.getWidth()
+  const pageHeight = doc.internal.pageSize.getHeight()
+  let yPosition = 10
+
+  
+  // Set fonts
+  doc.setFont('Helvetica', 'bold')
+  doc.setFontSize(24)
+  doc.setTextColor(255, 140, 66) // Orange color
+  doc.text(invoice.businessName, pageWidth / 2, yPosition, { align: 'center' })
+
+  yPosition += 8
+  doc.setFont('Helvetica', 'normal')
+  doc.setFontSize(9)
+  doc.setTextColor(100, 100, 100)
+  doc.text('Professional Retail Management System - Bricto', pageWidth / 2, yPosition, { align: 'center' })
+
+  yPosition += 10
+  doc.setDrawColor(255, 140, 66)
+  doc.line(10, yPosition, pageWidth - 10, yPosition)
+
+  yPosition += 6
+  doc.setFont('Helvetica', 'bold')
+  doc.setFontSize(14)
+  doc.setTextColor(0, 0, 0)
+  doc.text('INVOICE', 10, yPosition)
+
+  yPosition += 12
+  doc.setFont('Helvetica', 'normal')
+  doc.setFontSize(10)
+  doc.setTextColor(0, 0, 0)
+
+  // Invoice Details
+  const leftCol = 10
+  const rightCol = pageWidth / 2 + 5
+
+  doc.text(`Invoice #: ${invoice.id}`, leftCol, yPosition)
+  doc.text(`Date: ${new Date(invoice.createdAt).toLocaleDateString('en-IN')}`, rightCol, yPosition)
+
+  yPosition += 7
+  doc.text(`Customer: ${invoice.customerName}`, leftCol, yPosition)
+  doc.text(`Due Date: ${new Date(invoice.dueDate).toLocaleDateString('en-IN')}`, rightCol, yPosition)
+
+  yPosition += 12
+
+  // Table Headers
+  doc.setFont('Helvetica', 'bold')
+  doc.setFontSize(10)
+  doc.setFillColor(255, 140, 66)
+  doc.setTextColor(255, 255, 255)
+
+  const colWidths = [60, 20, 35, 35]
+  const headers = ['Product', 'Qty', 'Price (₹)', 'Amount (₹)']
+
+  let xPos = leftCol
+  headers.forEach((header, i) => {
+    doc.rect(xPos, yPosition - 5, colWidths[i], 7, 'F')
+    doc.text(header, xPos + 2, yPosition, { align: 'left' })
+    xPos += colWidths[i]
+  })
+
+  yPosition += 10
+  doc.setFont('Helvetica', 'normal')
+  doc.setTextColor(0, 0, 0)
+
+  // Table Rows
   invoice.items.forEach((item) => {
-    const row = document.createElement("tr")
-
-    const cells = [
+    const itemTotal = item.salePrice * item.quantity
+    const row = [
       item.productName,
       item.quantity.toString(),
-      "₹" + item.salePrice.toFixed(2),
-      "₹" + (item.salePrice * item.quantity).toFixed(2),
+      `₹${item.salePrice.toFixed(2)}`,
+      `₹${itemTotal.toFixed(2)}`,
     ]
 
-    cells.forEach((cellText) => {
-      const td = document.createElement("td")
-      td.textContent = cellText
-      row.appendChild(td)
+    xPos = leftCol
+    row.forEach((cell, i) => {
+      doc.text(cell, xPos + 2, yPosition, { align: i > 0 ? 'right' : 'left' })
+      xPos += colWidths[i]
     })
 
-    tbody.appendChild(row)
+    yPosition += 6
   })
 
-  table.appendChild(tbody)
-  container.appendChild(table)
+  // Totals Section
+  yPosition += 5
+  doc.setDrawColor(200, 200, 200)
+  doc.line(10, yPosition, pageWidth - 10, yPosition)
 
-  // Totals - Remove profit from customer invoice
-  const totals = document.createElement("div")
-  totals.className = "totals"
+  yPosition += 6
+  doc.setFont('Helvetica', 'normal')
+  doc.setFontSize(10)
 
-  const taxPercent = invoice.subtotal > 0 ? ((invoice.taxAmount / invoice.subtotal) * 100).toFixed(1) : "0"
+  const totalsX = pageWidth - 60
+  doc.text('Subtotal:', totalsX, yPosition)
+  doc.text(`₹${invoice.subtotal.toFixed(2)}`, pageWidth - 10, yPosition, { align: 'right' })
 
-  const totalRows = [
-    {
-      label: "Subtotal:",
-      value: "₹" + invoice.subtotal.toFixed(2),
-      style: "",
-    },
-    {
-      label: "Tax (" + taxPercent + "%)",
-      value: "₹" + invoice.taxAmount.toFixed(2),
-      style: "",
-    },
-    {
-      label: "Total Amount:",
-      value: "₹" + invoice.total.toFixed(2),
-      style: "border-top: 2px solid #ff8c42; padding-top: 10px; margin-top: 10px;",
-    },
-  ]
+  yPosition += 6
+  const taxPercent = invoice.subtotal > 0 ? ((invoice.taxAmount / invoice.subtotal) * 100).toFixed(1) : '0'
+  doc.text(`Tax (${taxPercent}%):`, totalsX, yPosition)
+  doc.text(`₹${invoice.taxAmount.toFixed(2)}`, pageWidth - 10, yPosition, { align: 'right' })
 
-  totalRows.forEach((row) => {
-    const div = document.createElement("div")
-    div.className = "total-row"
-    if (row.style) {
-      div.setAttribute("style", row.style)
-    }
-
-    const label = document.createElement("span")
-    label.className = "total-label"
-    label.textContent = row.label
-
-    const value = document.createElement("span")
-    value.className = "total-amount"
-    value.textContent = row.value
-
-    div.appendChild(label)
-    div.appendChild(value)
-    totals.appendChild(div)
-  })
-
-  container.appendChild(totals)
+  yPosition += 8
+  doc.setFont('Helvetica', 'bold')
+  doc.setFontSize(12)
+  doc.setDrawColor(255, 140, 66)
+  doc.line(totalsX - 5, yPosition - 2, pageWidth - 10, yPosition - 2)
+  doc.text('Total Amount:', totalsX, yPosition)
+  doc.setTextColor(255, 140, 66)
+  doc.text(`₹${invoice.total.toFixed(2)}`, pageWidth - 10, yPosition, { align: 'right' })
 
   // Footer
-  const footer = document.createElement("div")
-  footer.className = "footer"
+  yPosition = pageHeight - 15
+  doc.setFont('Helvetica', 'normal')
+  doc.setFontSize(8)
+  doc.setTextColor(150, 150, 150)
+  doc.text('Generated by Bricto - Professional Retail Management System', pageWidth / 2, yPosition, { align: 'center' })
 
-  const footerP1 = document.createElement("p")
-  footerP1.textContent = "Generated by RetailOS - Professional Retail Management System"
-  footer.appendChild(footerP1)
+  yPosition += 5
+  doc.text('Thank you for your business!', pageWidth / 2, yPosition, { align: 'center' })
 
-  const footerP2 = document.createElement("p")
-  footerP2.textContent = "Thank you for your business!"
-  footer.appendChild(footerP2)
-
-  container.appendChild(footer)
-  body.appendChild(container)
-  doc.appendChild(body)
-
-  // Convert to HTML string and download
-  const html = "<!DOCTYPE html>" + doc.outerHTML
-
-  const blob = new Blob([html], { type: "text/html;charset=utf-8" })
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement("a")
-  link.href = url
-  link.download = "Invoice-" + invoice.id + ".html"
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-  URL.revokeObjectURL(url)
+  // Save PDF
+  doc.save(`Invoice-${invoice.id}.pdf`)
 }
