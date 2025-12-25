@@ -11,18 +11,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Hash password
-    const passwordHash = crypto
-      .createHash("sha256")
-      .update(password + process.env.SALT || "default")
-      .digest("hex")
+    const salt = process.env.SALT || "default-salt"
+    const passwordHash = crypto.createHash("sha256").update(password + salt).digest("hex")
 
-    // Create user in database
-    const result = await sql(
-      `INSERT INTO users (email, password_hash, name, business_name) 
-       VALUES ($1, $2, $3, $4) 
-       RETURNING id, email, name, business_name`,
-      [email, passwordHash, name, businessName],
-    )
+    // Create user in database using Neon's tagged template literal syntax
+    const result = await sql`
+      INSERT INTO users (email, password_hash, name, business_name) 
+      VALUES (${email}, ${passwordHash}, ${name}, ${businessName}) 
+      RETURNING id, email, name, business_name
+    `
 
     if (!result || result.length === 0) {
       return NextResponse.json({ message: "Failed to create user" }, { status: 500 })
@@ -31,7 +28,7 @@ export async function POST(request: NextRequest) {
     const user = result[0]
 
     const response = NextResponse.json(
-      { user: { id: user.id, email: user.email, name: user.name, businessName: user.business_name } },
+      { user: { id: user.id.toString(), email: user.email, name: user.name, businessName: user.business_name } },
       { status: 201 },
     )
 
@@ -46,7 +43,7 @@ export async function POST(request: NextRequest) {
     return response
   } catch (error) {
     console.error("Signup error:", error)
-    if ((error as any).message?.includes("duplicate key")) {
+    if ((error as any).message?.includes("duplicate key") || (error as any).code === "23505") {
       return NextResponse.json({ message: "Email already exists" }, { status: 409 })
     }
     return NextResponse.json({ message: "Internal server error" }, { status: 500 })

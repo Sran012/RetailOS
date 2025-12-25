@@ -11,16 +11,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Hash password
-    const passwordHash = crypto
-      .createHash("sha256")
-      .update(password + process.env.SALT || "default")
-      .digest("hex")
+    const salt = process.env.SALT || "default-salt"
+    const passwordHash = crypto.createHash("sha256").update(password + salt).digest("hex")
 
-    // Find user in database
-    const result = await sql(
-      `SELECT id, email, name, business_name FROM users WHERE email = $1 AND password_hash = $2`,
-      [email, passwordHash],
-    )
+    // Find user in database using Neon's tagged template literal syntax
+    const result = await sql`
+      SELECT id, email, name, business_name 
+      FROM users 
+      WHERE email = ${email} AND password_hash = ${passwordHash}
+    `
 
     if (!result || result.length === 0) {
       return NextResponse.json({ message: "Invalid credentials" }, { status: 401 })
@@ -29,7 +28,7 @@ export async function POST(request: NextRequest) {
     const user = result[0]
 
     const response = NextResponse.json(
-      { user: { id: user.id, email: user.email, name: user.name, businessName: user.business_name } },
+      { user: { id: user.id.toString(), email: user.email, name: user.name, businessName: user.business_name } },
       { status: 200 },
     )
 
